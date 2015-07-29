@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>{{title}}</title>
+	<link rel="stylesheet" href="../css/chatroom.css">
+	<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+
+	<script src="/socket.io/socket.io.js"></script>
+
+	<script>
+	$(function(){
+		var host ='{{config.host}}';
+		var socket = io.connect(host+'/roomlist');//this is not a route : its a namespace being created by socket.io
+		//after socket has been connected : we will listen to it 
+		socket.on('connect',function(){
+			console.log('Connection Established !');
+		})
+
+
+		//listen also to the roomupdate event which we 
+		//have created on socket.js page (to update created room)
+		socket.on('roomupdate',function(data){
+			//now i have the JSON data as a string
+			//because we sent it after stringify
+			$('.roomlist').html('');
+			var procData =JSON.parse(data); //converts to an active array to loop over
+			for(var i = 0; i < procData.length; i++){
+				var str = '<a href="room/' + procData[i].room_number + '"><li>' + procData[i].room_name + '</li></a>';
+				$('.roomlist').prepend(str);
+			}
+
+		})
+
+
+		//now we will initiate the creation of a new room
+		$(document).on('click','#create',function(){
+			var room_name = $('.newRoom').val();
+			if(room_name!=''){
+				var room_number = parseInt(Math.random()*10000);
+				
+				//now emit will create a new event , which can be heard in the 
+				//socket.js
+				//on which the entire functionality resides :
+				//after hearing we can 
+				//add the details of the rooms , in 
+				//the room array declared in the socket.js file
+
+				socket.emit('newroom',{room_name:room_name,room_number:room_number});
+
+				//now we will clear the input field
+				$('.newRoom').val('');
+				//socket over there will hear emit and populate list rooms[]
+				//next step will be to add the newly created room
+				//to the chatrooms view 			
+
+			}
+		})
+	})
+	</script>
+<!--The above script links to the socket.io js part already inbuilt in socket.io -->
+
+
+	<!--<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+	$(function(){
+		var host = '{{config.host}}';
+		var socket = io.connect(host + '/roomlist'); // http://localhost:3000/roomlist
+
+		socket.on('connect', function(){
+			console.log('Connection Established !');
+		})
+
+		socket.on('roomupdate', function(data){
+			var procData = JSON.parse(data);
+			$('.roomlist').html('');
+			for(var i = 0; i < procData.length; i++){
+				var str = '<a href="room/' + procData[i].room_number + '"><li>' + procData[i].room_name + '</li></a>';
+				$('.roomlist').prepend(str);
+			}
+		})
+
+
+
+		$(document).on('click', '#create', function(){
+			var room_name = $('.newRoom').val();
+			if(room_name!=''){
+				var room_number = parseInt(Math.random() * 10000);
+				socket.emit('newroom', {room_name:room_name, room_number:room_number});
+				$('.newRoom').val('');
+			}
+		})
+	})
+	</script> -->
+</head>
+<body>
+	<div class="cr-container">
+		<h1 class="cr-title">Talkativ</h1>
+		<div class="cr-userbox">
+			<img src="{{user.profilePic}}" class="userPic">
+			<h3 class="userName">{{user.fullname}} | <a href="/logout">Logout</a></h3>
+		</div>
+		<div class="cr-newroom">
+			<input type="text" class="newRoom" autocomplete="off">
+			<button id="create">Create Room</button>
+		</div>
+		<div class="cr-roomlist">
+			<ul class="roomlist">
+				<!--Here the ROOMS will show up 
+				check the for loop section for understanding
+				-->
+			</ul>
+		</div>
+	</div>
+</body>
+</html>

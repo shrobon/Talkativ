@@ -1,0 +1,10 @@
+{
+	"dbURL":"USE YOUR OWN HERE ",
+	 "sessionSecret":"USE YOUR OWN HERE",
+	 "fb":{
+	 	"appID":"USE YOUR OWN HERE",
+	 	"appSecret":"USE YOUR OWN HERE",
+	 	"callbackURL":"http://localhost:3000/auth/facebook/callback"
+	 },
+	 "host":"http://localhost:3000"
+}
